@@ -45,7 +45,6 @@ public class Login extends JFrame {
 
         // Text field of IP Adress
         JTextField txtAddress = new JTextField();
-        txtAddress = new JTextField();
 		txtAddress.setBounds(67, 116, 165, 28);
 		contentPane.add(txtAddress);
 		txtAddress.setColumns(10);
@@ -75,16 +74,23 @@ public class Login extends JFrame {
 
         // Login Button setup and listener
         JButton btnLogin = new JButton("Login");
+        // Adding a litener to the button
 		btnLogin.addActionListener(new ActionListener() {
+            // Fetching the data from input fields from a callback function
 			public void actionPerformed(ActionEvent e) {
 				String name = txtName.getText();
 				String address = txtAddress.getText();
-				int port = Integer.parseInt(txtPort.getText());
+                int port = Integer.parseInt(txtPort.getText());
 				login(name, address, port);
 			}
 		});
 		btnLogin.setBounds(91, 311, 117, 29);
 		contentPane.add(btnLogin);
+    }
+
+    private void login(String name, String address, int port) {
+        dispose();
+        new Client(name, address, port);
     }
 
     public static void main(String[] args) {
