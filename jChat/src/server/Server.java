@@ -47,6 +47,7 @@ public class Server implements Runnable {
                     }
                     String dataStr;
                     try {
+                        process(packet);
                         dataStr = new String(packet.getData(), 0, packet.getLength(), "UTF-8");
                         clients.add(new ServerClient("aw", packet.getAddress(), packet.getPort(), 40));
                         System.out.println(clients.get(0).adress.toString() + clients.get(0).port);
@@ -56,8 +57,19 @@ public class Server implements Runnable {
 					}
                 }
             }
+
         };
         receive.start();
+    }
+    private void process(DatagramPacket packet) {
+        String string = new String(packet.getData());
+        if (string.startsWith("/c/")) {
+            int id = UniqueIdentifier.getIdentifier();
+            clients.add(new ServerClient(string.substring(3, string.length()), packet.getAddress(), packet.getPort(), id));
+            System.out.println(string.substring(3, string.length()));
+        } else {
+            System.out.println(string);
+        }
     }
 
     private void manageClients() {
