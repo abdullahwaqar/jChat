@@ -172,6 +172,7 @@ public class Client extends JFrame {
         console(name + ": " + message);
         // history.setCaretPosition(history.getDocument().getLength()); // for remembering the last message postion
         console(message);
+        message = "/m/" + message;
         send(message.getBytes());
         txtMessage.setText("");
     }
