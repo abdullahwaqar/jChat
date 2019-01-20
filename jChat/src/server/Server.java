@@ -47,16 +47,7 @@ public class Server implements Runnable {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    String dataStr;
-                    try {
-                        process(packet);
-                        dataStr = new String(packet.getData(), 0, packet.getLength(), "UTF-8");
-                        clients.add(new ServerClient("aw", packet.getAddress(), packet.getPort(), 40));
-                        System.out.println(clients.get(0).adress.toString() + clients.get(0).port);
-                        System.out.println(dataStr);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-					}
+                    process(packet);
                 }
             }
 
