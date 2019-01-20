@@ -67,7 +67,7 @@ public class Server implements Runnable {
     private void sendToAll(String message) {
         for (int i = 0; i < clients.size(); i++) {
             ServerClient client = clients.get(i);
-
+            send(message.getBytes(), client.adress, client.port);
         }
     }
 
@@ -92,8 +92,8 @@ public class Server implements Runnable {
             clients.add(new ServerClient(string.substring(3, string.length()), packet.getAddress(), packet.getPort(), id));
             System.out.println(string.substring(3, string.length()));
         } else if(string.startsWith("/m/")){
-            String message = string.substring(3, string.length());
-            sendToAll(message);
+            // String message = string.substring(3, string.length());
+            sendToAll(string);
         } else {
             System.out.println(string);
         }
