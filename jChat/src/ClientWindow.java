@@ -17,6 +17,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ClientWindow extends JFrame implements Runnable{
     private static final long serialVersionUID = 1L;
@@ -105,7 +107,7 @@ public class ClientWindow extends JFrame implements Runnable{
         JButton btnSend = new JButton("Send");
         btnSend.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                send(txtMessage.getText());
+                send(txtMessage.getText(), true);
             }
         });
 		GridBagConstraints gbc_btnSend = new GridBagConstraints();
@@ -113,6 +115,16 @@ public class ClientWindow extends JFrame implements Runnable{
 		gbc_btnSend.gridx = 2;
 		gbc_btnSend.gridy = 2;
         contentPane.add(btnSend, gbc_btnSend);
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent event) {
+                System.out.println("closed");
+                String disconnect = "/d/" + client.getID() + "/e/";
+                send(disconnect, false);
+                client.close();
+                running = false;
+            }
+        });
 
         setVisible(true);
 
@@ -123,10 +135,12 @@ public class ClientWindow extends JFrame implements Runnable{
         listen();
     }
 
-    public void send(String message) {
+    public void send(String message, boolean status) {
         if (message.equals("")) return;
-        message = client.getName() + ": " + message;
-        message = "/m/" + message;
+        if (status) {
+            message = client.getName() + ": " + message;
+            message = "/m/" + message;
+        }
         client.send(message.getBytes());
         txtMessage.setText("");
     }
