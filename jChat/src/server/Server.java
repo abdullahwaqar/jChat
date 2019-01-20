@@ -91,8 +91,9 @@ public class Server implements Runnable {
             int id = UniqueIdentifier.getIdentifier();
             clients.add(new ServerClient(string.substring(3, string.length()), packet.getAddress(), packet.getPort(), id));
             System.out.println(string.substring(3, string.length()));
+            String ID = "/c/" + id;
+            send(ID.getBytes(), packet.getAddress(), packet.getPort());
         } else if(string.startsWith("/m/")){
-            // String message = string.substring(3, string.length());
             sendToAll(string);
         } else {
             System.out.println(string);

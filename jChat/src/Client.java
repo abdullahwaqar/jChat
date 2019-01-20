@@ -16,6 +16,8 @@ public class Client {
     private String name, address;
     private int port;
 
+    private int ID = -1;
+
     public Client(String name, String adress, int port) {
         this.name = name;
         this.address = adress;
@@ -72,5 +74,12 @@ public class Client {
             }
         };
         send.start();
+    }
+
+	public void setID(int id) {
+        this.ID = id;
+    }
+    public int getID() {
+        return ID;
     }
 }

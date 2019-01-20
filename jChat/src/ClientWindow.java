@@ -18,7 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class ClientWindow extends JFrame {
+public class ClientWindow extends JFrame implements Runnable{
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
     private JTextArea history;
@@ -26,6 +26,9 @@ public class ClientWindow extends JFrame {
     private DefaultCaret caret;
 
     private Client client;
+
+    private Thread listen, run;
+    private boolean running = false;
 
     public ClientWindow(String name, String address, int port) {
         client = new Client(name, address, port);
@@ -39,6 +42,9 @@ public class ClientWindow extends JFrame {
         console("Attempting connection to " + address + ":" + port + " user: " + name);
         String connection = "/c/" + name;
         client.send(connection.getBytes());
+        running = true;
+        run = new Thread(this, "Running");
+        run.start();
     }
 
     private void createWindow() {
@@ -113,6 +119,10 @@ public class ClientWindow extends JFrame {
         txtMessage.requestFocusInWindow();
     }
 
+    public void run() {
+        listen();
+    }
+
     public void send(String message) {
         if (message.equals("")) return;
         console(client.getName() + ": " + message);
@@ -121,6 +131,21 @@ public class ClientWindow extends JFrame {
         message = "/m/" + message;
         client.send(message.getBytes());
         txtMessage.setText("");
+    }
+
+    public void listen() {
+        listen = new Thread("Listen") {
+            public void run() {
+                while (running) {
+                    String message = client.receive();
+                    if (message.startsWith("/c/")) {
+                        client.setID(Integer.parseInt(message.split("/c/")[1].trim()));
+                        console("Successfully Connected to Server");
+                    }
+                }
+            }
+        };
+        listen.start();
     }
 
     public void console(String message) {
