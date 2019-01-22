@@ -12,11 +12,14 @@ import java.util.ArrayList;
 public class Server implements Runnable {
 
     private ArrayList<ServerClient> clients = new ArrayList<ServerClient>();
+    private ArrayList<Integer> clientResponse = new ArrayList<Integer>();
 
     private DatagramSocket socket;
     private int port;
     private boolean running = false;
     private Thread run, manage, send, receive;
+
+    private final int MAX_TRIES = 5;
 
     public Server(int port) {
         this.port = port;
@@ -80,15 +83,18 @@ public class Server implements Runnable {
         String string = new String(packet.getData());
         if (string.startsWith("/c/")) {
             int id = UniqueIdentifier.getIdentifier();
-            clients.add(new ServerClient(string.substring(3, string.length()), packet.getAddress(), packet.getPort(), id));
+            clients.add(
+                    new ServerClient(string.substring(3, string.length()), packet.getAddress(), packet.getPort(), id));
             System.out.println(string.substring(3, string.length()));
             String ID = "/c/" + id;
             send(ID.getBytes(), packet.getAddress(), packet.getPort());
-        } else if(string.startsWith("/m/")){
+        } else if (string.startsWith("/m/")) {
             sendToAll(string);
         } else if (string.startsWith("/d/")) {
             String id = string.split("/d/|/e/")[1].trim();
             disconnect(Integer.parseInt(id), true);
+        } else if (string.startsWith("/i/")) {
+            clientResponse.add(Integer.parseInt(string.split("/i/|/e/")[1]));
         } else {
             System.out.println(string);
         }
@@ -105,25 +111,48 @@ public class Server implements Runnable {
         }
         String message = "";
         if (status) {
-            message = "Client " + c.name + " (" + c.getID() + ") @ " + c.adress.toString() + ":" + c.port + " Disconnected.";
+            message = "Client " + c.name + " (" + c.getID() + ") @ " + c.adress.toString() + ":" + c.port
+                    + " Disconnected.";
         } else {
-            message = "Client " + c.name + " (" + c.getID() + ") @ " + c.adress.toString() + ":" + c.port + " Timed Out.";
+            message = "Client " + c.name + " (" + c.getID() + ") @ " + c.adress.toString() + ":" + c.port
+                    + " Timed Out.";
         }
         System.out.println(message);
     }
 
     private void manageClients() {
         /*
-        * manageClients will run in its own Thread
-        * Manage clients by pinging them with a set time limit
-        * to see if the client connection is still alive if not
-        * then send the disconnect packet.
-        */
+         * manageClients will run in its own Thread Manage clients by pinging them with
+         * a set time limit to see if the client connection is still alive if not then
+         * send the disconnect packet.
+         */
         manage = new Thread("[*] Manage Thread Active") {
             public void run() {
                 while (running) {
-                    //*? managing logic
-
+                    // *? managing logic
+                    /*
+                     * For each of the clients that are connected send them packet to see if they
+                     * are still alive and connected the server.
+                     */
+                    sendToAll("/i/server");
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    for (int i = 0; i < clients.size(); i++) {
+                        ServerClient c = clients.get(i);
+                        if (!clientResponse.contains(c.getID())) {
+                            if (c.attempt >= MAX_TRIES) {
+                                disconnect(c.getID(), false);
+                            } else {
+                                c.attempt++;
+                            }
+                        } else {
+                            clientResponse.remove(new Integer(c.getID()));
+                            c.attempt = 0;
+                        }
+                    }
                 }
             }
         };

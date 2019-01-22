@@ -60,7 +60,7 @@ public class ClientWindow extends JFrame implements Runnable{
 		setLocationRelativeTo(null);
 		contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        contentPane.setBackground(Color.BLACK);
+        // contentPane.setBackground(Color.BLACK);
 		setContentPane(contentPane);
 
 		GridBagLayout gbl_contentPane = new GridBagLayout();
@@ -91,7 +91,7 @@ public class ClientWindow extends JFrame implements Runnable{
         txtMessage.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    send(txtMessage.getText());
+                    send(txtMessage.getText(), running);
                 }
             }
         });
@@ -156,6 +156,9 @@ public class ClientWindow extends JFrame implements Runnable{
                     } else if (message.startsWith("/m/")) {
                         String text = message.split("/m/|/e")[1];
                         console(text);
+                    } else if (message.startsWith("/i/")) {
+                        String text = "/i/" + client.getID() + "/e/";
+                        send(text, false);
                     }
                 }
             }

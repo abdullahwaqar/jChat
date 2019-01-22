@@ -31,7 +31,7 @@ public class Login extends JFrame {
         setLocationRelativeTo(null);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        contentPane.setBackground(Color.BLACK);
+        // contentPane.setBackground(Color.BLACK);
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
